@@ -9,7 +9,7 @@ import usersRoute from "./routes/users.js";
 
 environment == "development" ? app.use(morgan("dev")) : app.use(morgan("combined"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1", usersRoute);
 
 app.get("/", (req, res) => {
