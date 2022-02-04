@@ -3,18 +3,20 @@ import express from "express";
 const router = express.Router();
 
 router.get("/users", (req, res) => {
-    res.json({
-        status: 200,
-        route: "/api/v1/users",
-        msg: "hit users route",
-    });
+    const limit = parseInt(req.query.limit) || 5; // return 5 users by default
+    const users = User.getUsers(limit);
+    users instanceof Error
+        ? res
+              .status(500)
+              .json({ data: "Something went wrong. Try again later" })
+        : res.status(200).json(users);
 });
 
 router.get("/user/:id", (req, res) => {
     const id = req.params.id;
     if (isNaN(id)) {
         res.status(400).json({
-            data: "invalid id type. id has to be a integer"
+            data: "invalid id type. id has to be a integer",
         });
         return; // stops the code below form executing
     }

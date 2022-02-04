@@ -8,6 +8,16 @@ const db = new Database("./User.sqlite3", options);
 
 const allFields = `id, first_name, last_name, email, gender, user_agent, user_avatar, city, country`;
 
+export function getUsers(count) {
+    try {
+        const stmt = db.prepare(`SELECT ${allFields} FROM User LIMIT ?`)
+        const users = stmt.all(count);
+        return users;
+    } catch (e) {
+        return e;
+    }
+}
+
 export function getUserById(id) {
     try {
         const stmt = db.prepare(`SELECT ${allFields} FROM User WHERE id = ?`);
