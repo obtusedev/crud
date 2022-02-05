@@ -13,32 +13,42 @@ router.get("/users", (req, res) => {
 });
 
 router.get("/user/:id", (req, res) => {
-    const id = req.params.id;
+    const id = parseInt(req.params.id);
+
     if (isNaN(id)) {
         res.status(400).json({
-            data: "invalid id type. id has to be a integer",
+            message: "Invalid id type. id has to be a integer",
         });
         return; // stops the code below form executing
     }
+
+    try {
     const user = User.getUserById(id);
-    switch (user) {
-        case user instanceof Error:
+        if (user === undefined) {
+            // user doesn't exist
+            res.status(404).json({
+                data: {
+                    message: `No user with id: ${id} found`,
+                },
+            });
+        } else if (user !== undefined) {
+            res.status(200).json({
+                data: {
+                    message: "OK",
+                    user,
+                },
+            });
+        } else {
+            res.status(418); // teapot
+        }
+    } catch (e) {
             // database error
             res.status(500).json({
-                data: "Something went wrong. Try again later",
+            data: {
+                message: "Something went wrong. Try again later",
+                content: e.message,
+            },
             });
-            break;
-        case user === undefined:
-            // user doesn't exists
-            res.status(404).json({
-                data: `The user with id: ${id} does not exists in the database`,
-            });
-            break;
-        case user:
-            res.status(200).json(user);
-            break;
-        default:
-            res.status(418); //teapot
     }
 });
 
