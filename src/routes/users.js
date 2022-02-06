@@ -23,7 +23,7 @@ router.get("/user/:id", (req, res) => {
     }
 
     try {
-    const user = User.getUserById(id);
+        const user = User.getUserById(id);
         if (user === undefined) {
             // user doesn't exist
             res.status(404).json({
@@ -42,22 +42,46 @@ router.get("/user/:id", (req, res) => {
             res.status(418); // teapot
         }
     } catch (e) {
-            // database error
-            res.status(500).json({
+        // database error
+        res.status(500).json({
             data: {
                 message: "Something went wrong. Try again later",
                 content: e.message,
             },
-            });
+        });
     }
 });
 
 router.post("/user", (req, res) => {
-    res.json({
-        status: 200,
-        route: "/api/v1/user",
-        msg: "created user successfully",
+    const validation = User.userSchema.validate(req.body, {
+        abortEarly: false, // show all errors
     });
+    let { error } = validation;
+    if (error !== undefined) {
+        let { details } = error;
+        res.status(400).json({
+            data: {
+                message: "Validation Error",
+                details,
+            },
+        });
+    } else {
+        let userCreated = User.createUser(req.body);
+        if (userCreated) {
+            res.status(200).json({
+                data: {
+                    message: "User Created",
+                    number: userCreated,
+                },
+            });
+        } else {
+            res.status(400).json({
+                data: {
+                    message: "Something went wrong. User not created",
+                },
+            });
+        }
+    }
 });
 
 router.put("/user/:id", (req, res) => {

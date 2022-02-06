@@ -64,11 +64,12 @@ export const userSchema = Joi.object({
         .description("Your country")
         .example("United States"),
 });
+
 const allFields = `id, first_name, last_name, email, gender, user_agent, user_avatar, city, country`;
 
 export function getUsers(count) {
     try {
-        const stmt = db.prepare(`SELECT ${allFields} FROM User LIMIT ?`)
+        const stmt = db.prepare(`SELECT ${allFields} FROM User LIMIT ?`);
         const users = stmt.all(count);
         return users;
     } catch (e) {
@@ -79,10 +80,24 @@ export function getUsers(count) {
 export function getUserById(id) {
     try {
         const stmt = db.prepare(`SELECT ${allFields} FROM User WHERE id = ?`);
-        const user = stmt.get(String(id));
-        return user !== undefined ? user : `No user with the id: ${id} found`;
+        const user = stmt.get(id);
+        console.log(typeof user);
+        return user === undefined ? undefined : user;
     } catch (e) {
         // TODO: log this error. maybe with winston since morgan only logs https
+        return e;
+    }
+}
+
+export function createUser(userObject) {
+    try {
+        const stmt = db.prepare(
+            `INSERT INTO User (first_name, last_name, email, gender, user_agent, user_avatar, city, country) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        );
+        const info = stmt.run(Object.values(userObject)); // just sending a object is not going to work or throw error
+        return info.changes // 1 is success 0 is failure
+    } catch (e) {
         return e;
     }
 }
