@@ -96,7 +96,11 @@ export function createUser(userObject) {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
         );
         const info = stmt.run(Object.values(userObject)); // just sending a object is not going to work or throw error
-        return info.changes // 1 is success 0 is failure
+export function deleteUser(id) {
+    try {
+        const stmt = db.prepare("DELETE FROM User WHERE id = ?");
+        const info = stmt.run(id);
+        return info.changes;
     } catch (e) {
         return e;
     }

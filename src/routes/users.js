@@ -90,11 +90,38 @@ router.put("/user/:id", (req, res) => {
 
 router.delete("/user/:id", (req, res) => {
     const id = req.params.id;
-    res.json({
-        status: 200,
-        route: "/api/v1/user/:id",
-        msg: `deleting user with id: ${id}`,
+    if (isNaN(id)) {
+        res.status(400).json({
+            message: "Invalid id type. id has to be a integer",
+        });
+        return; // stops the code below form executing
+    }
+
+    try {
+        const userDeleted = User.deleteUser(id);
+        if (userDeleted) {
+            res.status(200).json({
+                data: {
+                    response: "OK",
+                    msg: "User Deleted",
+                },
+            });
+        } else {
+            res.status(404).json({
+                data: {
+                    response: "Error",
+                    msg: "No user with that id found",
+                },
+            });
+        }
+    } catch (e) {
+        res.status(500).json({
+            data: {
+                message: "Something went wrong. Try again later",
+                content: e.message,
+            },
     });
+    }
 });
 
 export default router;
