@@ -7,6 +7,18 @@ const options = {
 };
 const db = new Database("./User.sqlite3", options);
 
+/**
+ * Represents a User object
+ * @typedef {Object} User
+ * @property {string} first_name
+ * @property {string} last_name
+ * @property {string} email
+ * @property {string} gender
+ * @property {string} user_agent
+ * @property {string} user_avatar
+ * @property {string} city
+ * @property {string} country
+ */
 export const userSchema = Joi.object({
     first_name: Joi.string()
         .min(1)
@@ -65,9 +77,17 @@ export const userSchema = Joi.object({
         .example("United States"),
 });
 
+/**
+ * @const {string} - represents all the User table columns
+ */
 const allFields = `id, first_name, last_name, email, gender, user_agent, user_avatar, city, country`;
 
-export function getUsers(count) {
+/** @function getUsers
+ * Get list of users.
+ * @param {number=5} count - How many users to return. Default 5
+ * @returns {(Array[User]|Error)} list of user or error
+ */
+export function getUsers(count = 5) {
     try {
         const stmt = db.prepare(`SELECT ${allFields} FROM User LIMIT ?`);
         const users = stmt.all(count);
@@ -76,6 +96,12 @@ export function getUsers(count) {
         return e;
     }
 }
+
+/** @function
+ * Get single user by id
+ * @param {number} id - user id that you want
+ * @returns {(Object|Error)} single user object or error
+ */
 
 export function getUserById(id) {
     try {
@@ -88,6 +114,12 @@ export function getUserById(id) {
     }
 }
 
+/** @function
+ * Create a user. Return 0 for failure and 1 for success
+ * @param {Object} userObject -
+ * @returns {(number|Error)} number or error
+ */
+
 export function createUser(userObject) {
     try {
         const stmt = db.prepare(
@@ -95,6 +127,38 @@ export function createUser(userObject) {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
         );
         const info = stmt.run(Object.values(userObject)); // just sending a object is not going to work or throw error
+        return info.changes; // 1 is success 0 is failure
+    } catch (e) {
+        return e;
+    }
+}
+
+export default function updateUser(id, userObject) {
+    let data = Object.keys(userObject).map(field => {
+        let pair = {};
+        pair[field] = userObject[field];
+        return pair;
+    });
+    try {
+        const stmt = db.prepare(`UPDATE User SET ? = ? WHERE id = ?`);
+        const updateFields = db.transaction(field => {
+            for (const values of field) {
+                stmt.run(values);
+            }
+        });
+        const info = updateFields(data);
+        return info.changes;
+    } catch (e) {
+        return e;
+    }
+}
+
+/** @function
+ * Delete user with id. Returns 0 for failure or 1 for success
+ * @param {number} id - user id to delete
+ * @returns {(number|Error)} number or error
+ */
+
 export function deleteUser(id) {
     try {
         const stmt = db.prepare("DELETE FROM User WHERE id = ?");
