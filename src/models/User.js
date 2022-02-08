@@ -81,7 +81,6 @@ export function getUserById(id) {
     try {
         const stmt = db.prepare(`SELECT ${allFields} FROM User WHERE id = ?`);
         const user = stmt.get(id);
-        console.log(typeof user);
         return user === undefined ? undefined : user;
     } catch (e) {
         // TODO: log this error. maybe with winston since morgan only logs https
