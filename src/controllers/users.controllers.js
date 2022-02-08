@@ -2,12 +2,17 @@ import * as User from "../models/User.js";
 
 export function getUsers(req, res) {
     const limit = parseInt(req.query.limit) || 5; // return 5 users by default
-    const users = User.getUsers(limit);
-    users instanceof Error
-        ? res
-              .status(500)
-              .json({ data: "Something went wrong. Try again later" })
-        : res.status(200).json(users);
+    try {
+        const users = User.getUsers(limit);
+        res.status(200).json({
+            data: {
+                message: "OK",
+                content: users,
+            },
+        });
+    } catch (e) {
+        res.status(500).json({ data: "Something went wrong. Try again later" });
+    }
 }
 
 export function getUserById(req, res) {
