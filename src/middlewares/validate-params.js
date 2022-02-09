@@ -15,6 +15,7 @@ export function paramIdIsTypeInt(req, res, next, id) {
                 message: "Id must be a number",
             },
         });
+    } else {
+        next();
     }
-    next();
 }
