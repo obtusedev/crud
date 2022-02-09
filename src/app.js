@@ -7,6 +7,7 @@ import { limiter } from "./middlewares/rate-limit.js";
 import process from "process";
 import path from "path";
 import { fileURLToPath } from "url";
+import { validateJsonRequestBody } from "./middlewares/validate-json-body.js";
 
 const app = express();
 const PORT = 3000 || process.env.PORT;
@@ -21,6 +22,7 @@ environment == "development"
     : app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(validateJsonRequestBody)
 app.use(helmet());
 app.use(cors());
 app.use("/api/v1", limiter); // rate limit api routes
