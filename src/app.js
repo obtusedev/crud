@@ -14,7 +14,7 @@ const environment = process.env.NODE_ENV;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import usersRoute from "./routes/users.js";
+import usersRoute from "./routes/users.routes.js";
 
 environment == "development"
     ? app.use(morgan("dev"))
