@@ -48,26 +48,36 @@ export function getUserById(req, res) {
 
 export function createUser(req, res) {
     const validation = User.userSchema.validate(req.body, {
-        abortEarly: false, // show all errors
+        abortEarly: true,
     });
     let { error } = validation;
     if (error !== undefined) {
-        let { details } = error;
         res.status(400).json({
-            status: 400,
-            message: details,
+            error: {
+                status: 400,
+                message: validation.error.details[0].message,
+            },
         });
     } else {
-        let userCreated = User.createUser(req.body);
-        if (userCreated) {
-            res.status(200).json({
-                status: 200,
-                message: "OK",
-            });
-        } else {
+        try {
+            let userCreated = User.createUser(req.body);
+            if (userCreated) {
+                res.status(200).json({
+                    status: 200,
+                    message: "OK",
+                });
+            } else {
+                res.status(400).json({
+                    status: 400,
+                    message: "Bad Request",
+                });
+            }
+        } catch (e) {
             res.status(400).json({
-                status: 400,
-                message: "Bad Request",
+                error: {
+                    status: 400,
+                    message: "Bad Request",
+                },
             });
         }
     }
