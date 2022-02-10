@@ -40,7 +40,7 @@ export const userSchema = Joi.object({
     gender: Joi.string()
         .min(4)
         .max(6)
-        .allow("Male", "Female")
+        .valid("Male", "Female")
         .required()
         .description("Your gender")
         .example("Male, Female"),
@@ -58,6 +58,7 @@ export const userSchema = Joi.object({
         .max(50)
         .allow("")
         .default("")
+        .required()
         .description("url to avatar image")
         .example("www.example.com/path/to/img.jpg"),
     city: Joi.string()
@@ -129,7 +130,7 @@ export function createUser(userObject) {
         const info = stmt.run(Object.values(userObject)); // just sending a object is not going to work or throw error
         return info.changes; // 1 is success 0 is failure
     } catch (e) {
-        return e;
+        throw e;
     }
 }
 
